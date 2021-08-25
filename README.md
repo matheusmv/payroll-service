@@ -1,2 +1,2 @@
 # payroll-service
-Serviço de folha de pagamento com Spring Cloud
+Serviço de folha de pagamentos com Spring Cloud
