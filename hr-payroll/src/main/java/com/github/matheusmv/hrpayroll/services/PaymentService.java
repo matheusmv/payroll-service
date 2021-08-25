@@ -1,26 +1,26 @@
 package com.github.matheusmv.hrpayroll.services;
 
 import com.github.matheusmv.hrpayroll.entities.Payment;
-import com.github.matheusmv.hrpayroll.entities.Worker;
+import com.github.matheusmv.hrpayroll.feignclients.WorkerFeignClient;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
 
 @Service
 public class PaymentService {
 
-    @Value("${hr-worker.host}")
-    private String workerHost;
-
     @Autowired
-    private RestTemplate restTemplate;
+    private WorkerFeignClient workerFeignClient;
 
-    public Payment getPayment(final long workerId, final int days) {
-        final String url = workerHost + "/workers/" + workerId;
+    public Optional<Payment> getPayment(final long workerId, final int days) {
+        try {
+            var worker = workerFeignClient.getById(workerId).getBody();
 
-        var worker = restTemplate.getForObject(url, Worker.class);
-
-        return new Payment(worker.getName(), worker.getDailyIncome(), days);
+            return Optional.of(new Payment(worker.getName(), worker.getDailyIncome(), days));
+        } catch (FeignException exception) {
+            return Optional.empty();
+        }
     }
 }

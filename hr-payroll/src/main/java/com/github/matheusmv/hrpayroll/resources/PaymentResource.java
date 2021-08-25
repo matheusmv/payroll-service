@@ -19,8 +19,9 @@ public class PaymentResource {
     @GetMapping(value = "/{workerId}/days/{days}")
     public ResponseEntity<Payment> getPayment(@PathVariable Long workerId,
                                               @PathVariable Integer days) {
-        var payment = service.getPayment(workerId, days);
-
-        return ResponseEntity.ok().body(payment);
+        return service
+                .getPayment(workerId, days)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
