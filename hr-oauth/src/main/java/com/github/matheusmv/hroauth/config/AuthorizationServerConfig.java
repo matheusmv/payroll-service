@@ -1,7 +1,7 @@
 package com.github.matheusmv.hroauth.config;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,13 +15,30 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 @EnableAuthorizationServer
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+
+    @Value("${oauth.client.name}")
+    private String oauthClient;
+    @Value("${oauth.client.secret}")
+    private String oauthSecret;
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtAccessTokenConverter accessTokenConverter;
     private final JwtTokenStore tokenStore;
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    public AuthorizationServerConfig(
+            BCryptPasswordEncoder passwordEncoder,
+            JwtAccessTokenConverter accessTokenConverter,
+            JwtTokenStore tokenStore,
+            AuthenticationManager authenticationManager
+    ) {
+        this.passwordEncoder = passwordEncoder;
+        this.accessTokenConverter = accessTokenConverter;
+        this.tokenStore = tokenStore;
+        this.authenticationManager = authenticationManager;
+    }
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -32,8 +49,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-                .withClient("myappname123")
-                .secret(passwordEncoder.encode("myappsecret123"))
+                .withClient(oauthClient)
+                .secret(passwordEncoder.encode(oauthSecret))
                 .scopes("read", "write")
                 .authorizedGrantTypes("password")
                 .accessTokenValiditySeconds(86400);
