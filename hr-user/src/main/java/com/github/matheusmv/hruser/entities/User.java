@@ -3,6 +3,7 @@ package com.github.matheusmv.hruser.entities;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,6 +27,8 @@ public class User {
     @EqualsAndHashCode.Include
     private Long id;
     private String name;
+
+    @Column(unique = true)
     private String email;
     private String password;
 
